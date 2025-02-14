@@ -1,0 +1,6 @@
+FROM rabbitmq:3.12-management
+
+RUN apt-get update && apt-get install netcat -y
+
+EXPOSE 5672
+EXPOSE 15672

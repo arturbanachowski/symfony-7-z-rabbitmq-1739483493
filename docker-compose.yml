@@ -1,0 +1,71 @@
+version: '3.3'
+networks:
+  network:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
+services:
+  mysql:
+    image: 'mysql'
+    container_name: 'kupujelive-mysql'
+    volumes:
+      - ./mysql:/var/lib/mysql
+    restart: always
+    ports:
+      - '2306:3306'
+    command: --sql_mode='STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: kupujelive
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+    networks:
+      network:
+        ipv4_address: 172.30.0.4
+
+  back-end:
+    container_name: 'kupujelive-symfony'
+    build:
+      dockerfile: Dockerfile-symfony
+      context: ./docker
+    ports:
+      - '2006:8000'
+    restart: on-failure
+    volumes:
+      - './symfony/:/var/www/symfony/'
+    command: sh -c "composer install && php bin/console doctrine:schema:update --complete --force && bin/console messenger:consume & symfony server:start --listen-ip=0.0.0.0"
+    environment:
+      MESSENGER_TRANSPORT_DSN: 'amqp://admin:pass@172.22.0.9:5672/%2f/messages'
+    networks:
+      network:
+        ipv4_address: 172.30.0.2
+    depends_on:
+      mysql:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile-rabbitmq
+    container_name: 'kupujelive-rabbitmq'
+    ports:
+      - "2672:5672"
+      - "25672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "admin"
+      RABBITMQ_DEFAULT_PASS: "pass"
+    volumes:
+      - ./rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      network:
+        ipv4_address: 172.30.0.9
+    healthcheck:
+      test: nc -z localhost 5672
+      interval: 20s
+      timeout: 20s
+      retries: 3
+      start_period: 20s
