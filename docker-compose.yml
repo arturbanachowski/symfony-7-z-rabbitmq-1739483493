@@ -37,7 +37,7 @@ services:
       - './symfony/:/var/www/symfony/'
     command: sh -c "composer install && php bin/console doctrine:schema:update --complete --force && bin/console messenger:consume & symfony server:start --listen-ip=0.0.0.0"
     environment:
-      MESSENGER_TRANSPORT_DSN: 'amqp://admin:pass@172.22.0.9:5672/%2f/messages'
+      MESSENGER_TRANSPORT_DSN: 'amqp://admin:pass@172.30.0.9:5672/%2f/messages'
     networks:
       network:
         ipv4_address: 172.30.0.2
@@ -60,6 +60,7 @@ services:
       RABBITMQ_DEFAULT_PASS: "pass"
     volumes:
       - ./rabbitmq_data:/var/lib/rabbitmq
+      - ./docker/php.ini:/usr/local/etc/php/php.ini
     networks:
       network:
         ipv4_address: 172.30.0.9
