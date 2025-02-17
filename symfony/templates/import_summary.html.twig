@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block content %}
+    <div class="container mt-5">
+        <h2>Podsumowanie Ostatniego Importu</h2>
+
+        {% if summary is defined %}
+            <table class="table table-bordered mt-3">
+                <tr>
+                    <th>Łączna liczba wierszy</th>
+                    <td>{{ summary.totalRows }}</td>
+                </tr>
+                <tr>
+                    <th>Przetworzone wiersze</th>
+                    <td>{{ summary.processedRows }}</td>
+                </tr>
+                <tr>
+                    <th>Błędy</th>
+                    <td>
+                        {% if summary.errorsCount > 0 %}
+                            <span class="text-danger">{{ summary.errorsCount }}</span>
+                        {% else %}
+                            <span class="text-success">Brak błędów ✅</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>
+                        {% if summary.success %}
+                            <span class="text-success">Sukces</span>
+                        {% else %}
+                            <span class="text-danger">Wystąpiły błędy</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            {% if summary.errorsCount > 0 %}
+                <h4 class="mt-4">Lista błędów:</h4>
+                <ul class="list-group mt-2">
+                    {% for error in summary.errors %}
+                        <li class="list-group-item text-danger">
+                            Wiersz {{ error.row }}: {{ error.reason }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+        {% else %}
+            <div class="alert alert-warning mt-3">Brak danych o ostatnim imporcie.</div>
+        {% endif %}
+    </div>
+{% endblock %}
