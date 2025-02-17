@@ -72,6 +72,18 @@ class CsvImportHandler
             $this->filesystem->dumpFile($progressFile, json_encode(['progress' => $progress]));
         }
 
+        $summaryFile = __DIR__.'/../../var/csv/csv_summary.json';
+
+        $summaryData = [
+            'totalRows' => $totalRows,
+            'processedRows' => $processed,
+            'errorsCount' => count($errors),
+            'success' => count($errors) === 0,
+            'errors' => $errors
+        ];
+
+        $this->filesystem->dumpFile($summaryFile, json_encode($summaryData, JSON_PRETTY_PRINT));
+
         fclose($handle);
         unlink($filePath);
     }

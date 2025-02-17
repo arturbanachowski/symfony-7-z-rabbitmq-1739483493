@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,5 +33,29 @@ class ProgressController extends AbstractController
         ]);
     }
 
+    #[Route('/summary', name: 'import_summary')]
+    public function summary(): Response
+    {
+        $summaryFile = __DIR__.'/../../var/csv/csv_summary.json';
 
+        if (!file_exists($summaryFile)) {
+            return $this->render('import_summary.html.twig', [
+                'summary' => null
+            ]);
+        }
+
+        $summaryData = json_decode(file_get_contents($summaryFile), true);
+
+        $summary = [
+            'totalRows' => $summaryData['totalRows'] ?? 0,
+            'processedRows' => $summaryData['processedRows'] ?? 0,
+            'errorsCount' => isset($summaryData['errors']) ? count($summaryData['errors']) : 0,
+            'errors' => $summaryData['errors'] ?? [],
+            'success' => ($summaryData['processedRows'] ?? 0) > 0 && empty($summaryData['errors'])
+        ];
+
+        return $this->render('import_summary.html.twig', [
+            'summary' => $summary
+        ]);
+    }
 }

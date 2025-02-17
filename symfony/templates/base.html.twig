@@ -4,16 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CSV Import{% endblock %}</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 25px;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            border-radius: 5px;
+        }
+        #error-list {
+            margin-top: 20px;
+            color: red;
+        }
+    </style>
 </head>
 <body>
-<header>
-    <h1>CSV Import System</h1>
-    <nav>
-        <a href="{{ path('import_csv') }}">Import</a>
-    </nav>
-</header>
-<main>
-    {% block body %}{% endblock %}
-</main>
+
+<nav>
+    <a href="{{ path('import_csv') }}">Import</a>
+    <a href="{{ path('import_summary') }}">Podsumowanie</a>
+</nav>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
 </body>
 </html>
